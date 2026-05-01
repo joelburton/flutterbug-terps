@@ -50,6 +50,8 @@ CASES=(
     "hugo     |hugo|hugo/colossal.hex|1|COLOSSAL HUGO"
     "advsys-bu|advsys|advsys/busted.dat|1|BUSTED!"
     "advsys-key|advsys|advsys/key.dat|1|KEY TO TIME"
+    "alan2-cl |alan2|alan2/CLOSET.ACD|1|COMING OUT OF THE CLOSET"
+    "alan2-st |alan2|alan2/study.acd|1|OUT OF THE STUDY"
     "alan3    |alan3|alan3/the_christmas_party.a3c|1|Christmas Party"
     "scare    |scare|scare/Hamper.taf|1|Hamper"
     "scott-sa |scott|scott/adventureland.dat|1|ADVENTURELAND"

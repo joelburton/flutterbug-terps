@@ -257,6 +257,26 @@ terp(taylor
 target_sources(taylor PRIVATE "${CMAKE_SOURCE_DIR}/cmake/empty_glkunix_args.c")
 
 #
+# alan2 — ALAN 2.8.6 (Thomas Nilsson), the original ALAN system
+#
+set(ALAN2_MACROS GLK)
+include(TestBigEndian)
+test_big_endian(GARGLK_BIG_ENDIAN)
+if(NOT GARGLK_BIG_ENDIAN)
+    list(APPEND ALAN2_MACROS REVERSED)
+endif()
+terp(alan2
+    SRCS
+        arun.c main.c debug.c args.c exe.c inter.c parse.c rules.c
+        stack.c decode.c term.c reverse.c readline.c params.c sysdep.c
+        glkstart.c glkio.c alan.version.c
+    MACROS ${ALAN2_MACROS}
+    POSIX)
+if(CMAKE_C_COMPILER_ID MATCHES "Clang$")
+    target_compile_options(alan2 PRIVATE "-Wno-dangling-else")
+endif()
+
+#
 # scare — SCARE (Simon Baldwin), interpreter for Adrift 4 (.taf) games
 #
 find_package(ZLIB REQUIRED)
