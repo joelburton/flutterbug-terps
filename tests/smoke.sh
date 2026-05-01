@@ -48,6 +48,8 @@ CASES=(
     "tads-2   |tadsr|tads/ditch.gam|1|Ditch Day Drifter"
     "tads-3   |tadsr|tads/ditch3.t3|1|Return to Ditch Day"
     "hugo     |hugo|hugo/colossal.hex|1|COLOSSAL HUGO"
+    "advsys-bu|advsys|advsys/busted.dat|1|BUSTED!"
+    "advsys-key|advsys|advsys/key.dat|1|KEY TO TIME"
     "scott-sa |scott|scott/adventureland.dat|1|ADVENTURELAND"
     "scott-pi |scott|scott/pirate.dat|1|pirate adventure"
     "scott-mb |scott|scott/golden_baton.dat|1|MYSTERIOUS ADVENTURES"

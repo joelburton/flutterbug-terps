@@ -257,6 +257,17 @@ terp(taylor
 target_sources(taylor PRIVATE "${CMAKE_SOURCE_DIR}/cmake/empty_glkunix_args.c")
 
 #
+# advsys — AdvSys 1.2 (Dave Betz, 1980s). Small Lisp-flavored adventure system.
+#
+terp(advsys
+    SRCS
+        advmsg.c advtrm.c advprs.c advdbs.c advint.c advjunk.c advexe.c
+        glkstart.c)
+if(CMAKE_C_COMPILER_ID MATCHES "Clang$")
+    target_compile_options(advsys PRIVATE "-Wno-parentheses")
+endif()
+
+#
 # hugo — Hugo (Kent Tessman, 1995). Standalone VM and IF system.
 #
 terp(hugo
