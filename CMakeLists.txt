@@ -255,3 +255,15 @@ terp(taylor
         ui.c utility.c
     LIBS c64diskimage unp64)
 target_sources(taylor PRIVATE "${CMAKE_SOURCE_DIR}/cmake/empty_glkunix_args.c")
+
+#
+# hugo — Hugo (Kent Tessman, 1995). Standalone VM and IF system.
+#
+terp(hugo
+    SRCS
+        heglk/heglk.c heglk/heglkunix.c
+        source/he.c source/hemisc.c source/heparse.c source/herun.c
+        source/heexpr.c source/heobject.c source/heres.c source/heset.c
+        source/stringfn.c
+    INCLUDE_DIRS "${GARGOYLE_DIR}/terps/hugo/source"
+    MACROS GLK HUGO_GLKUNIX COMPILE_V25 NO_KEYPRESS_CURSOR "HUGO_INLINE=static inline")
