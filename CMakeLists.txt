@@ -257,6 +257,20 @@ terp(taylor
 target_sources(taylor PRIVATE "${CMAKE_SOURCE_DIR}/cmake/empty_glkunix_args.c")
 
 #
+# scare — SCARE (Simon Baldwin), interpreter for Adrift 4 (.taf) games
+#
+find_package(ZLIB REQUIRED)
+terp(scare
+    SRCS
+        sctafpar.c sctaffil.c scprops.c scvars.c scexpr.c scprintf.c
+        scinterf.c scparser.c sclibrar.c scrunner.c scevents.c scnpcs.c
+        scobjcts.c sctasks.c screstrs.c scgamest.c scserial.c scresour.c
+        scutils.c scdebug.c sclocale.c scmemos.c os_glk.c
+    INCLUDE_DIRS ${ZLIB_INCLUDE_DIRS}
+    LIBS ${ZLIB_LIBRARIES}
+    MACROS SCARE_NO_ABBREVIATIONS)
+
+#
 # alan3 — ALAN 3 (Thomas Nilefalk; modern rewrite of Göran Ranby's ALAN system)
 #
 terp(alan3
