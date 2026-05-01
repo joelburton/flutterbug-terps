@@ -176,3 +176,82 @@ if(CMAKE_C_COMPILER_ID STREQUAL "Clang"
    OR CMAKE_CXX_COMPILER_ID STREQUAL "AppleClang")
     target_compile_options(tads PRIVATE "-Wno-logical-not-parentheses")
 endif()
+
+# ----------------------------------------------------------------------------
+# Helper libraries shared by scott / plus / taylor (all by Petter Sjölund).
+# These mirror the gargoyle definitions in terps/{c64diskimage,unp64}/.
+# ----------------------------------------------------------------------------
+
+add_library(c64diskimage STATIC
+    "${GARGOYLE_DIR}/terps/c64diskimage/c64diskimage.c")
+target_include_directories(c64diskimage INTERFACE
+    "${GARGOYLE_DIR}/terps/c64diskimage")
+
+set(UNP64_DIR "${GARGOYLE_DIR}/terps/unp64")
+add_library(unp64 STATIC
+    ${UNP64_DIR}/6502_emu.cpp ${UNP64_DIR}/exo_util.cpp ${UNP64_DIR}/globals.cpp
+    ${UNP64_DIR}/unp64.cpp
+    ${UNP64_DIR}/scanners/scanners.cpp ${UNP64_DIR}/scanners/abuze_crunch.cpp
+    ${UNP64_DIR}/scanners/action_packer.cpp ${UNP64_DIR}/scanners/byte_boiler.cpp
+    ${UNP64_DIR}/scanners/caution.cpp ${UNP64_DIR}/scanners/ccs.cpp
+    ${UNP64_DIR}/scanners/cruel.cpp ${UNP64_DIR}/scanners/eca.cpp
+    ${UNP64_DIR}/scanners/exomizer.cpp ${UNP64_DIR}/scanners/expert.cpp
+    ${UNP64_DIR}/scanners/final_super_comp.cpp ${UNP64_DIR}/scanners/intros.cpp
+    ${UNP64_DIR}/scanners/master_compressor.cpp ${UNP64_DIR}/scanners/megabyte.cpp
+    ${UNP64_DIR}/scanners/mr_cross.cpp ${UNP64_DIR}/scanners/mr_z.cpp
+    ${UNP64_DIR}/scanners/pu_crunch.cpp ${UNP64_DIR}/scanners/section8.cpp
+    ${UNP64_DIR}/scanners/tbc_multicomp.cpp ${UNP64_DIR}/scanners/tcs_crunch.cpp
+    ${UNP64_DIR}/scanners/time_cruncher.cpp ${UNP64_DIR}/scanners/xtc.cpp)
+target_include_directories(unp64 INTERFACE ${UNP64_DIR} PRIVATE ${UNP64_DIR})
+set_target_properties(unp64 PROPERTIES CXX_STANDARD 17)
+
+#
+# scott — ScottFree (Alan Cox) + saga / ai_uk / ti994a extensions (Petter Sjölund)
+#
+terp(scott
+    SRCS
+        scott.c bsd.c
+        ai_uk/c64decrunch.c ai_uk/debug.c ai_uk/decompresstext.c
+        ai_uk/decompressz80.c ai_uk/game_specific.c ai_uk/gremlins.c
+        ai_uk/hulk.c ai_uk/line_drawing.c ai_uk/ringbuffer.c
+        ai_uk/robinofsherwood.c ai_uk/sagadraw.c ai_uk/seasofblood.c
+        detectgame.c layouttext.c parser.c restorestate.c scottgameinfo.c
+        titleimage.c
+        saga/apple2detect.c saga/apple2draw.c saga/atari8c64draw.c
+        saga/atari8detect.c saga/ciderpress.c saga/pcdraw.c saga/saga.c
+        saga/sagagraphics.c saga/woz2nib.c
+        ti994a/load_ti99_4a.c ti994a/ti99_4a_terp.c
+    INCLUDE_DIRS
+        "${GARGOYLE_DIR}/terps/scott/saga"
+        "${GARGOYLE_DIR}/terps/scott/ai_uk"
+        "${GARGOYLE_DIR}/terps/scott/ti994a"
+    LIBS c64diskimage unp64)
+
+#
+# plus — Plus 1.0 by Petter Sjölund (US Adventure International games)
+#
+terp(plus
+    SRCS
+        plusmain.c animations.c apple2detect.c apple2draw.c atari8c64draw.c
+        atari8detect.c c64detect.c extracommands.c companionfile.c gameinfo.c
+        graphics.c layouttext.c loaddatabase.c parseinput.c pcdraw.c
+        restorestate.c stdetect.c stdraw.c
+    LIBS c64diskimage)
+target_sources(plus PRIVATE "${CMAKE_SOURCE_DIR}/cmake/empty_glkunix_args.c")
+# plus declares glkunix_arguments[10]; as a tentative definition. -fcommon
+# lets the linker treat that as common and resolve to our shim's strong
+# definition instead of erroring on duplicate symbols.
+set_source_files_properties("${GARGOYLE_DIR}/terps/plus/plusmain.c"
+    PROPERTIES COMPILE_FLAGS "-fcommon")
+
+#
+# taylor — TaylorMade by Alan Cox / Petter Sjölund (Adventure Soft UK games)
+#
+terp(taylor
+    SRCS
+        animations.c c64decrunch.c decompressz80.c decrypttotloader.c
+        extracommands.c extracttape.c gameinfo.c layouttext.c
+        loadtotpicture.c parseinput.c player.c restorestate.c sagadraw.c
+        ui.c utility.c
+    LIBS c64diskimage unp64)
+target_sources(taylor PRIVATE "${CMAKE_SOURCE_DIR}/cmake/empty_glkunix_args.c")
