@@ -257,6 +257,27 @@ terp(taylor
 target_sources(taylor PRIVATE "${CMAKE_SOURCE_DIR}/cmake/empty_glkunix_args.c")
 
 #
+# alan3 — ALAN 3 (Thomas Nilefalk; modern rewrite of Göran Ranby's ALAN system)
+#
+terp(alan3
+    SRCS
+        alan.version.c act.c actor.c args.c arun.c attribute.c checkentry.c
+        class.c converter.c current.c debug.c decode.c dictionary.c event.c
+        exe.c fnmatch.c glkio.c glkstart.c instance.c inter.c lists.c
+        literal.c main.c memory.c msg.c options.c output.c params.c parse.c
+        readline.c reverse.c rules.c save.c scan.c score.c set.c stack.c
+        state.c syntax.c sysdep.c syserr.c term.c types.c utils.c word.c
+        compatibility.c AltInfo.c Container.c Location.c
+        ParameterPosition.c StateStack.c
+    MACROS GLK HAVE_GLK BUILD=0
+    POSIX)
+# alan3 calls iconv() for character-set conversion. On macOS it lives in
+# libiconv; on glibc/musl it's part of libc and needs no linker flag.
+if(APPLE)
+    target_link_libraries(alan3 PRIVATE iconv)
+endif()
+
+#
 # advsys — AdvSys 1.2 (Dave Betz, 1980s). Small Lisp-flavored adventure system.
 #
 terp(advsys
