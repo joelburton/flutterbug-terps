@@ -41,6 +41,8 @@ ONLY=("$@")
 CASES=(
     "bocfel-z3|bocfel|zmachine/library.z3|2|Library Of Horror"
     "bocfel-z5|bocfel|zmachine/Advent.z5|2|At End Of Road"
+    "bocfel-zilf-z3|bocfel|zmachine/cloak.z3|2|Cloak of Darkness"
+    "bocfel-zilf-z5|bocfel|zmachine/cloak_plus.z5|2|ZILF library"
     "glulxe   |glulxe|glulx/advent.ulx|1|At End Of Road"
     "git      |git|glulx/advent.ulx|1|At End Of Road"
     "tads-2   |tadsr|tads/ditch.gam|1|Ditch Day Drifter"
