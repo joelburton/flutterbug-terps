@@ -63,7 +63,7 @@ CASES=(
     "scott-pi |scott|scott/pirate.dat|1|pirate adventure"
     "scott-mb |scott|scott/golden_baton.dat|1|MYSTERIOUS ADVENTURES"
     "plus     |plus|-|-|-"
-    "taylor   |taylor|-|-|-"
+    "taylor   |taylor|taylor/rebelplanet.tap|1|Arcadian Empire"
 )
 
 INIT='{"type":"init","gen":0,"metrics":{"width":80,"height":24},"support":["timer","graphics","graphicswin","hyperlinks","sounds","sounds2"]}'
