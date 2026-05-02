@@ -62,7 +62,7 @@ CASES=(
     "scott-sa |scott|scott/adventureland.dat|1|ADVENTURELAND"
     "scott-pi |scott|scott/pirate.dat|1|pirate adventure"
     "scott-mb |scott|scott/golden_baton.dat|1|MYSTERIOUS ADVENTURES"
-    "plus     |plus|-|-|-"
+    "plus     |plus|plus/spiderman-s2.dsk|1|SPIDER-MAN"
     "taylor   |taylor|taylor/rebelplanet.tap|1|Arcadian Empire"
 )
 
@@ -85,19 +85,39 @@ run_with_game() {
     local terp_bin=$1 game=$2 win=$3 expect=$4
     {
         printf '%s\n' "$INIT"
+        # Send a line event (for the common case of line-input prompts) plus
+        # several char events on candidate windows (for graphics-window
+        # terps like plus that gate game text behind title-screen keypresses).
         printf '{"type":"line","gen":1,"window":%s,"value":"look"}\n' "$win"
-        sleep 1
-    } | timeout 5 "$terp_bin" "$game" 2>/dev/null \
+        # Then a stream of char events with monotonically-increasing gens,
+        # spread across candidate windows. For graphics-window terps (plus)
+        # that gate game text behind a title screen, this advances past it.
+        local gen=2
+        for round in 1 2 3 4 5 6 7 8; do
+            for w in 1 2 3 4 5; do
+                printf '{"type":"char","gen":%d,"window":%d,"value":" "}\n' $gen $w
+                gen=$((gen + 1))
+            done
+        done
+        sleep 3
+    } | timeout 10 "$terp_bin" "$game" 2>/dev/null \
       | python3 -c "
 import json, sys
 expect = sys.argv[1]
+# Accumulate text from up to N updates. Some terps (plus) put the title
+# screen graphics in update 1 with no text; the matchable prologue arrives
+# in update 2-3 after a keypress.
+MAX_UPDATES = 8
+seen = 0
+blob_parts = []
 for line in sys.stdin:
     s = line.strip()
     if not s.startswith('{'): continue
     try: d = json.loads(s)
     except: continue
     if d.get('disable'): continue
-    blob_parts = []
+    seen += 1
+    if seen > MAX_UPDATES: break
     for c in d.get('content', []):
         for ln in c.get('lines', []):
             for x in ln.get('content', []):
@@ -106,8 +126,9 @@ for line in sys.stdin:
             for seg in t.get('content', []):
                 blob_parts.append(seg.get('text',''))
     blob = ' '.join(blob_parts)
-    sys.exit(0 if expect in blob else 1)
-sys.exit(2)
+    if expect in blob:
+        sys.exit(0)
+sys.exit(1 if blob_parts else 2)
 " "$expect"
 }
 
