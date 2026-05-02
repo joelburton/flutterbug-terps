@@ -30,7 +30,7 @@ include(RemGlkRs)
 # for anything not gated by a GLK_MODULE_* feature-test macro.
 #
 function(terp target)
-    set(options POSIX)
+    set(options POSIX MATH)
     set(oneval CXXSTD)
     set(multival SRCS INCLUDE_DIRS MACROS LIBS)
     cmake_parse_arguments(TERP "${options}" "${oneval}" "${multival}" ${ARGN})
@@ -53,6 +53,9 @@ function(terp target)
     if(TERP_POSIX)
         target_compile_definitions(${target} PRIVATE
             $<$<COMPILE_LANGUAGE:C>:_XOPEN_SOURCE=600>)
+    endif()
+    if(TERP_MATH AND NOT MSVC)
+        target_link_libraries(${target} PRIVATE m)
     endif()
 endfunction()
 
@@ -255,6 +258,35 @@ terp(taylor
         ui.c utility.c
     LIBS c64diskimage unp64)
 target_sources(taylor PRIVATE "${CMAKE_SOURCE_DIR}/cmake/empty_glkunix_args.c")
+
+#
+# jacl — JACL (Stuart Allen, J Adventure Creation Language)
+#
+terp(jacl
+    SRCS
+        jacl.c glk_startup.c findroute.c interpreter.c loader.c
+        glk_saver.c logging.c parser.c display.c utils.c jpp.c
+        resolvers.c errors.c encapsulate.c libcsv.c
+    MACROS GLK GARGLK
+    MATH
+    POSIX)
+# JACL's #ifndef GARGLK path includes glkterm/* headers we don't have,
+# so we must define GARGLK. That activates garglk_set_program_name /
+# _program_info / _story_name calls that remglk-rs doesn't provide;
+# garglk_compat.c stubs those out as no-ops.
+target_sources(jacl PRIVATE "${CMAKE_SOURCE_DIR}/cmake/garglk_compat.c")
+if(CMAKE_C_COMPILER_ID MATCHES "Clang$")
+    # Style choice in the code.
+    target_compile_options(jacl PRIVATE "-Wno-parentheses-equality")
+    # JACL still has K&R-style declarations in places; the next upstream
+    # release will fix them, until then suppress the noise.
+    target_compile_options(jacl PRIVATE "-Wno-deprecated-non-prototype")
+    # JACL calls garglk_set_program_name etc. without declarations
+    # (relied on gargoyle's cheapglk/glk.h to provide them). RemGlk-rs's
+    # glk.h doesn't, so we get implicit-declaration errors. The symbols
+    # still resolve via garglk_compat.c.
+    target_compile_options(jacl PRIVATE "-Wno-implicit-function-declaration")
+endif()
 
 #
 # alan2 — ALAN 2.8.6 (Thomas Nilsson), the original ALAN system
