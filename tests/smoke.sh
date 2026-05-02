@@ -56,6 +56,8 @@ CASES=(
     "scare    |scare|scare/Hamper.taf|1|Hamper"
     "jacl     |jacl|jacl/grail.j2|1|REMOTE MILITARY BASE"
     "agility  |agility|agility/COSMOS.D\$\$|1|AGT Interpreter"
+    "level9-ko|level9|level9/knightorc/GAMEDAT1.DAT|1|Knight Orc"
+    "level9-gr|level9|level9/gnome/GAMEDAT1.DAT|1|Gnome Ranger"
     "scott-sa |scott|scott/adventureland.dat|1|ADVENTURELAND"
     "scott-pi |scott|scott/pirate.dat|1|pirate adventure"
     "scott-mb |scott|scott/golden_baton.dat|1|MYSTERIOUS ADVENTURES"

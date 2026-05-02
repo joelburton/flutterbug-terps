@@ -260,6 +260,30 @@ terp(taylor
 target_sources(taylor PRIVATE "${CMAKE_SOURCE_DIR}/cmake/empty_glkunix_args.c")
 
 #
+# level9 — Level 9 (Glen Summers / Alan Staniforth / David Kinder), runs the
+# 1980s UK Level 9 Computing adventures plus several PC variants.
+#
+terp(level9
+    SRCS Glk/glk.c bitmap.c level9.c
+    INCLUDE_DIRS "${GARGOYLE_DIR}/terps/level9"
+    MACROS
+        PRIVATE BITMAP_DECODER NEED_STRICMP_PROTOTYPE
+        stricmp=gln_strcasecmp strnicmp=gln_strncasecmp
+        GARGLK
+    MATH)
+# Same Mac-only-include problem as agility: a #ifndef GARGLK { #ifdef
+# TARGET_OS_MAC { #include "macglk_startup.h" } } block needs headers
+# we don't have. Defining GARGLK skips it; the activated garglk_set_*
+# calls are stubbed by garglk_compat.c.
+target_sources(level9 PRIVATE "${CMAKE_SOURCE_DIR}/cmake/garglk_compat.c")
+if(CMAKE_C_COMPILER_ID MATCHES "Clang$")
+    target_compile_options(level9 PRIVATE "-Wno-switch")
+    # Same as jacl/agility — calls garglk_set_program_name etc. without
+    # declarations.
+    target_compile_options(level9 PRIVATE "-Wno-implicit-function-declaration")
+endif()
+
+#
 # agility — AGT (Adventure Game Toolkit) interpreter, Robert Masenten
 #
 # AGT's os_glk.c gives three options for resolving filenames from glk
