@@ -55,6 +55,7 @@ CASES=(
     "alan3    |alan3|alan3/the_christmas_party.a3c|1|Christmas Party"
     "scare    |scare|scare/Hamper.taf|1|Hamper"
     "jacl     |jacl|jacl/grail.j2|1|REMOTE MILITARY BASE"
+    "agility  |agility|agility/COSMOS.D\$\$|1|AGT Interpreter"
     "scott-sa |scott|scott/adventureland.dat|1|ADVENTURELAND"
     "scott-pi |scott|scott/pirate.dat|1|pirate adventure"
     "scott-mb |scott|scott/golden_baton.dat|1|MYSTERIOUS ADVENTURES"

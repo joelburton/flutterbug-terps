@@ -260,6 +260,39 @@ terp(taylor
 target_sources(taylor PRIVATE "${CMAKE_SOURCE_DIR}/cmake/empty_glkunix_args.c")
 
 #
+# agility — AGT (Adventure Game Toolkit) interpreter, Robert Masenten
+#
+# AGT's os_glk.c gives three options for resolving filenames from glk
+# filerefs (see comment in agility/os_glk.c around line 5780):
+#   1) "bad voodoo" — dup/fdopen the underlying fd; fragile, Unix-only
+#   2) GLK_ANSI_ONLY — disable Glk file prompts entirely
+#   3) GLKUNIX_FILEREF_GET_FILENAME — use glkunix_fileref_get_filename()
+# Option 3 is exactly what remglk-rs offers (it's a Plotkin-blessed Unix
+# extension). Pick that and we avoid both the voodoo and the loss of
+# file dialogs.
+#
+terp(agility
+    SRCS
+        agtread.c gamedata.c util.c agxfile.c auxfile.c filename.c
+        parser.c exec.c runverb.c metacommand.c savegame.c debugcmd.c
+        agil.c token.c disassemble.c object.c interface.c os_glk.c
+    MACROS GLK GLKUNIX_FILEREF_GET_FILENAME GARGLK
+    POSIX)
+# GARGLK above (a) pulls in <glkstart.h> via os_glk.c so
+# glkunix_fileref_get_filename has a real declaration (otherwise it's
+# implicitly int and breaks fopen()), and (b) skips a Mac-only
+# #ifndef GARGLK { #if TARGET_OS_MAC { #include "macglk_startup.h" } }
+# block we don't have headers for. The trade-off is that GARGLK
+# activates calls to garglk_set_program_name/_info/_story_name, stubbed
+# by garglk_compat.c.
+target_sources(agility PRIVATE "${CMAKE_SOURCE_DIR}/cmake/garglk_compat.c")
+if(CMAKE_C_COMPILER_ID MATCHES "Clang$")
+    # Same situation as jacl: agility calls garglk_set_program_name etc.
+    # without declarations (relied on gargoyle's cheapglk/glk.h).
+    target_compile_options(agility PRIVATE "-Wno-implicit-function-declaration")
+endif()
+
+#
 # jacl — JACL (Stuart Allen, J Adventure Creation Language)
 #
 terp(jacl
