@@ -58,7 +58,7 @@ CASES=(
     "agility  |agility|agility/COSMOS.D\$\$|1|AGT Interpreter"
     "level9-ko|level9|level9/knightorc/GAMEDAT1.DAT|1|Knight Orc"
     "level9-gr|level9|level9/gnome/GAMEDAT1.DAT|1|Gnome Ranger"
-    "magnetic |magnetic|-|-|-"
+    "magnetic |magnetic|magnetic/pawn.mag|1|The Pawn"
     "scott-sa |scott|scott/adventureland.dat|1|ADVENTURELAND"
     "scott-pi |scott|scott/pirate.dat|1|pirate adventure"
     "scott-mb |scott|scott/golden_baton.dat|1|MYSTERIOUS ADVENTURES"
