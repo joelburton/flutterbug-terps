@@ -260,6 +260,23 @@ terp(taylor
 target_sources(taylor PRIVATE "${CMAKE_SOURCE_DIR}/cmake/empty_glkunix_args.c")
 
 #
+# magnetic — Magnetic Scrolls interpreter (Niclas Karlsson, David Kinder, et al)
+# Plays the late-1980s UK Magnetic Scrolls catalog (Pawn, Guild of Thieves,
+# Jinxter, Corruption, Fish, Myth, Wonderland) from .mag/.gfx pairs.
+#
+terp(magnetic
+    SRCS Generic/emu.c Glk/glk.c
+    INCLUDE_DIRS "${GARGOYLE_DIR}/terps/magnetic/Generic"
+    MACROS MAGNETIC_GLKUNIX GARGLK)
+# Same Mac-only macglk_startup.h problem; same fix.
+target_sources(magnetic PRIVATE "${CMAKE_SOURCE_DIR}/cmake/garglk_compat.c")
+if(CMAKE_C_COMPILER_ID MATCHES "Clang$")
+    # Style choice in the code (lots of unsigned-char vs signed-char mixing).
+    target_compile_options(magnetic PRIVATE "-Wno-pointer-sign")
+    target_compile_options(magnetic PRIVATE "-Wno-implicit-function-declaration")
+endif()
+
+#
 # level9 — Level 9 (Glen Summers / Alan Staniforth / David Kinder), runs the
 # 1980s UK Level 9 Computing adventures plus several PC variants.
 #
