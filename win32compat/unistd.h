@@ -5,9 +5,12 @@
 #include <stdio.h>
 #include <io.h>
 #include <direct.h>
+#include <process.h>
 
 #define F_OK 00
 #define W_OK 02
 #define R_OK 04
+
+#define getpid _getpid
 
 #endif

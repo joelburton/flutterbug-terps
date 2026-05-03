@@ -21,7 +21,7 @@ include(RemGlkRs)
 # path that provides just the symbols our terps actually use.
 if(MSVC)
     include_directories("${CMAKE_SOURCE_DIR}/win32compat")
-    add_compile_definitions(_CRT_SECURE_NO_WARNINGS)
+    add_compile_definitions(_CRT_SECURE_NO_WARNINGS _CRT_NONSTDC_NO_DEPRECATE)
 endif()
 
 #
@@ -257,6 +257,11 @@ target_sources(plus PRIVATE "${CMAKE_SOURCE_DIR}/cmake/empty_glkunix_args.c")
 # definition instead of erroring on duplicate symbols.
 set_source_files_properties("${GARGOYLE_DIR}/terps/plus/plusmain.c"
     PROPERTIES COMPILE_FLAGS "-fcommon")
+# plus opens the binary .dsk game file with fopen(..., "r"); on Windows
+# that triggers CRLF / 0x1a translation and silently corrupts the data.
+if(MSVC)
+    target_sources(plus PRIVATE "${CMAKE_SOURCE_DIR}/cmake/binary_fmode.c")
+endif()
 
 #
 # taylor — TaylorMade by Alan Cox / Petter Sjölund (Adventure Soft UK games)
@@ -269,6 +274,10 @@ terp(taylor
         ui.c utility.c
     LIBS c64diskimage unp64)
 target_sources(taylor PRIVATE "${CMAKE_SOURCE_DIR}/cmake/empty_glkunix_args.c")
+# Same Windows binary-mode-fopen issue as plus.
+if(MSVC)
+    target_sources(taylor PRIVATE "${CMAKE_SOURCE_DIR}/cmake/binary_fmode.c")
+endif()
 
 #
 # magnetic — Magnetic Scrolls interpreter (Niclas Karlsson, David Kinder, et al)
@@ -390,6 +399,12 @@ test_big_endian(GARGLK_BIG_ENDIAN)
 if(NOT GARGLK_BIG_ENDIAN)
     list(APPEND ALAN2_MACROS REVERSED)
 endif()
+# alan2 sysdep.h gates binary-mode fopen on __win__; without it the .acd
+# game file is read in text mode and a stray 0x1a / CRLF translation makes
+# "Could not read all ACD code" fire on Windows.
+if(WIN32)
+    list(APPEND ALAN2_MACROS __win__)
+endif()
 terp(alan2
     SRCS
         arun.c main.c debug.c args.c exe.c inter.c parse.c rules.c
@@ -440,6 +455,13 @@ endif()
 #
 # alan3 — ALAN 3 (Thomas Nilefalk; modern rewrite of Göran Ranby's ALAN system)
 #
+set(ALAN3_MACROS GLK HAVE_GLK BUILD=0)
+# On Windows MSVC there is no iconv. alan3's converter.c has a HAVE_GARGLK
+# fast path that returns strings unchanged; activate it. That also turns on
+# garglk_set_program_name / _story_name calls, stubbed by garglk_compat.c.
+if(MSVC)
+    list(APPEND ALAN3_MACROS HAVE_GARGLK)
+endif()
 terp(alan3
     SRCS
         alan.version.c act.c actor.c args.c arun.c attribute.c checkentry.c
@@ -450,12 +472,21 @@ terp(alan3
         state.c syntax.c sysdep.c syserr.c term.c types.c utils.c word.c
         compatibility.c AltInfo.c Container.c Location.c
         ParameterPosition.c StateStack.c
-    MACROS GLK HAVE_GLK BUILD=0
+    MACROS ${ALAN3_MACROS}
     POSIX)
 # alan3 calls iconv() for character-set conversion. On macOS it lives in
 # libiconv; on glibc/musl it's part of libc and needs no linker flag.
 if(APPLE)
     target_link_libraries(alan3 PRIVATE iconv)
+endif()
+if(MSVC)
+    target_sources(alan3 PRIVATE "${CMAKE_SOURCE_DIR}/cmake/garglk_compat.c")
+    # alan3 sources call standard-lib functions (strdup, free, atoi, memcpy,
+    # strcmp...) without including their headers. Linux GCC was lax; clang ≥16
+    # errors on implicit declarations and -Wint-conversion would still fire on
+    # the string returns. Force-include the headers globally for this terp.
+    target_compile_options(alan3 PRIVATE /FIstdlib.h /FIstring.h
+        -Wno-implicit-function-declaration)
 endif()
 
 #
