@@ -37,6 +37,9 @@ if exist "%PARENT_DIR%\games" (
 
 echo.
 echo === Building ===
+rem Note: on Windows there is no system zlib, so the cmake configure step
+rem below will FetchContent madler/zlib v1.3.1 and build it from source for
+rem the scare terp. This needs git on PATH (already required above).
 cmake -B "%REPO_DIR%\build" -S "%REPO_DIR%"
 if errorlevel 1 goto :fail
 cmake --build "%REPO_DIR%\build" -j
