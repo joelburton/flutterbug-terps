@@ -97,7 +97,7 @@ terp(glulxe
         heap.c serial.c search.c gestalt.c osdepend.c unixstrt.c accel.c
         profile.c float.c
     MACROS ${GLULXE_MACROS}
-    POSIX)
+    POSIX MATH)
 
 if(APPLE)
     set_source_files_properties("${GARGOYLE_DIR}/terps/glulxe/osdepend.c"
@@ -112,7 +112,8 @@ terp(git
         git.c memory.c compiler.c opcodes.c operands.c peephole.c terp.c
         glkop.c search.c git_unix.c savefile.c saveundo.c gestalt.c
         heap.c accel.c
-    MACROS USE_INLINE)
+    MACROS USE_INLINE
+    MATH)
 
 #
 # tadsr — TADS 2 + TADS 3 (one binary handles both versions)
@@ -274,6 +275,8 @@ if(CMAKE_C_COMPILER_ID MATCHES "Clang$")
     # Style choice in the code (lots of unsigned-char vs signed-char mixing).
     target_compile_options(magnetic PRIVATE "-Wno-pointer-sign")
     target_compile_options(magnetic PRIVATE "-Wno-implicit-function-declaration")
+elseif(CMAKE_C_COMPILER_ID STREQUAL "GNU")
+    target_compile_options(magnetic PRIVATE "-Wno-implicit-function-declaration")
 endif()
 
 #
@@ -297,6 +300,8 @@ if(CMAKE_C_COMPILER_ID MATCHES "Clang$")
     target_compile_options(level9 PRIVATE "-Wno-switch")
     # Same as jacl/agility — calls garglk_set_program_name etc. without
     # declarations.
+    target_compile_options(level9 PRIVATE "-Wno-implicit-function-declaration")
+elseif(CMAKE_C_COMPILER_ID STREQUAL "GNU")
     target_compile_options(level9 PRIVATE "-Wno-implicit-function-declaration")
 endif()
 
@@ -331,6 +336,8 @@ if(CMAKE_C_COMPILER_ID MATCHES "Clang$")
     # Same situation as jacl: agility calls garglk_set_program_name etc.
     # without declarations (relied on gargoyle's cheapglk/glk.h).
     target_compile_options(agility PRIVATE "-Wno-implicit-function-declaration")
+elseif(CMAKE_C_COMPILER_ID STREQUAL "GNU")
+    target_compile_options(agility PRIVATE "-Wno-implicit-function-declaration")
 endif()
 
 #
@@ -359,6 +366,8 @@ if(CMAKE_C_COMPILER_ID MATCHES "Clang$")
     # (relied on gargoyle's cheapglk/glk.h to provide them). RemGlk-rs's
     # glk.h doesn't, so we get implicit-declaration errors. The symbols
     # still resolve via garglk_compat.c.
+    target_compile_options(jacl PRIVATE "-Wno-implicit-function-declaration")
+elseif(CMAKE_C_COMPILER_ID STREQUAL "GNU")
     target_compile_options(jacl PRIVATE "-Wno-implicit-function-declaration")
 endif()
 
