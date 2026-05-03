@@ -22,6 +22,31 @@ BUILD_DIR="$REPO_DIR/build"
 GAMES_DIR=$(cd "$REPO_DIR/.." && pwd)/games
 ONLY=()
 
+# Pick a working Python: prefer python3, fall back to python (Windows where
+# python3 is the App Execution Alias stub), then py (Windows launcher).
+pick_python() {
+    for cand in python3 python py; do
+        if command -v "$cand" >/dev/null 2>&1 \
+           && "$cand" -c "import sys; sys.exit(0 if sys.version_info[0]==3 else 1)" >/dev/null 2>&1; then
+            echo "$cand"; return 0
+        fi
+    done
+    echo "ERROR: no Python 3 interpreter found on PATH" >&2
+    return 1
+}
+PYTHON=$(pick_python) || exit 1
+
+# On MSYS / git-bash the terp binaries are native Windows .exe files. They
+# receive paths verbatim and don't understand MSYS-style /c/foo. Translate
+# any absolute path we hand them through cygpath -w when available.
+to_native() {
+    if command -v cygpath >/dev/null 2>&1; then
+        cygpath -w "$1"
+    else
+        printf '%s' "$1"
+    fi
+}
+
 while getopts "b:g:h" opt; do
     case $opt in
         b) BUILD_DIR=$(cd "$OPTARG" && pwd) ;;
@@ -101,7 +126,7 @@ run_with_game() {
         done
         sleep 3
     } | timeout 10 "$terp_bin" "$game" 2>/dev/null \
-      | python3 -c "
+      | "$PYTHON" -c "
 import json, sys
 expect = sys.argv[1]
 # Accumulate text from up to N updates. Some terps (plus) put the title
@@ -140,7 +165,7 @@ run_smoke_only() {
         printf '%s\n' "$INIT"
         sleep 1
     } | timeout 5 "$terp_bin" /tmp/_no_such_game_$$ 2>/dev/null \
-      | python3 -c "
+      | "$PYTHON" -c "
 import json, sys
 for line in sys.stdin:
     s = line.strip()
@@ -195,7 +220,7 @@ for case_line in "${CASES[@]}"; do
         skip=$((skip+1)); continue
     fi
 
-    if run_with_game "$bin" "$game_path" "$win" "$expect"; then
+    if run_with_game "$bin" "$(to_native "$game_path")" "$win" "$expect"; then
         printf "  %-12s %b  found %q\n" "$label" "$P" "$expect"
         pass=$((pass+1))
     else

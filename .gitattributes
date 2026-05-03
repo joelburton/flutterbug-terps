@@ -1,0 +1,4 @@
+# Shell scripts must use LF endings — bash on MSYS / git-bash chokes on
+# CRLF (treats \r as part of the next token, breaks `cd`, function defs,
+# etc.). Force LF regardless of core.autocrlf.
+*.sh text eol=lf
