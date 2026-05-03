@@ -65,6 +65,12 @@ function(terp target)
     if(TERP_MATH AND NOT MSVC)
         target_link_libraries(${target} PRIVATE m)
     endif()
+    # Suppress MSVCRT's abort() and WER popups so the smoke runner doesn't
+    # have to click through modal dialogs when a terp aborts.
+    if(MSVC)
+        target_sources(${target} PRIVATE
+            "${CMAKE_SOURCE_DIR}/cmake/silence_popups.c")
+    endif()
 endfunction()
 
 #
