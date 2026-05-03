@@ -394,7 +394,23 @@ endif()
 #
 # scare — SCARE (Simon Baldwin), interpreter for Adrift 4 (.taf) games
 #
-find_package(ZLIB REQUIRED)
+# ZLIB: use the system copy if present (Linux/macOS); on Windows there is
+# no system zlib, so FetchContent builds v1.3.1 from source.
+find_package(ZLIB QUIET)
+if(NOT ZLIB_FOUND)
+    message(STATUS "System ZLIB not found — fetching madler/zlib v1.3.1")
+    include(FetchContent)
+    set(ZLIB_BUILD_EXAMPLES OFF CACHE BOOL "" FORCE)
+    set(SKIP_INSTALL_ALL ON CACHE BOOL "" FORCE)
+    FetchContent_Declare(
+        zlib
+        GIT_REPOSITORY https://github.com/madler/zlib.git
+        GIT_TAG v1.3.1
+    )
+    FetchContent_MakeAvailable(zlib)
+    set(ZLIB_LIBRARIES zlibstatic)
+    set(ZLIB_INCLUDE_DIRS "${zlib_SOURCE_DIR}" "${zlib_BINARY_DIR}")
+endif()
 terp(scare
     SRCS
         sctafpar.c sctaffil.c scprops.c scvars.c scexpr.c scprintf.c
