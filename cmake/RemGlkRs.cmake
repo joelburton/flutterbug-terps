@@ -53,3 +53,12 @@ set_target_properties(remglk_capi PROPERTIES
     IMPORTED_LOCATION "${_remglk_rs_archive}"
     INTERFACE_INCLUDE_DIRECTORIES "${REMGLK_RS_DIR}/remglk_capi/src/glk")
 add_dependencies(remglk_capi remglk_capi_build)
+
+# Rust's std on Windows references winsock, ntdll, userenv, dbghelp. When
+# linking the staticlib via cargo these are auto-injected, but our consumers
+# go through MSVC link.exe directly, so we surface them as INTERFACE deps.
+# Source of truth: cargo rustc -- --print=native-static-libs.
+if(WIN32)
+    set_target_properties(remglk_capi PROPERTIES
+        INTERFACE_LINK_LIBRARIES "kernel32;ntdll;userenv;ws2_32;dbghelp")
+endif()
