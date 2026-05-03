@@ -16,6 +16,14 @@ set(GARGOYLE_DIR "${CMAKE_SOURCE_DIR}/../garglk"
 list(APPEND CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}/cmake")
 include(RemGlkRs)
 
+# MSVC lacks the POSIX headers <strings.h> and <unistd.h> several terps expect.
+# Mirror Gargoyle's win32compat approach: a tiny shim directory on the include
+# path that provides just the symbols our terps actually use.
+if(MSVC)
+    include_directories("${CMAKE_SOURCE_DIR}/win32compat")
+    add_compile_definitions(_CRT_SECURE_NO_WARNINGS)
+endif()
+
 #
 # terp(<name>
 #     SRCS <files...>           — terp source files (relative to ${terp_dir})
@@ -89,6 +97,8 @@ elseif(UNIX)
     if(CMAKE_SYSTEM_NAME STREQUAL "Linux")
         list(APPEND GLULXE_MACROS UNIX_RAND_GETRANDOM)
     endif()
+elseif(WIN32)
+    list(APPEND GLULXE_MACROS OS_WINDOWS)
 endif()
 
 terp(glulxe
@@ -420,6 +430,12 @@ terp(scare
     INCLUDE_DIRS ${ZLIB_INCLUDE_DIRS}
     LIBS ${ZLIB_LIBRARIES}
     MACROS SCARE_NO_ABBREVIATIONS)
+# scare/os_glk.c has a Windows-only block that includes <WinGlk.h>. Tell MSVC
+# to undef _WIN32 for this terp only — narrower than defining GARGLK, which
+# would also activate calls to garglk_set_* extensions remglk doesn't expose.
+if(MSVC)
+    target_compile_options(scare PRIVATE /U_WIN32)
+endif()
 
 #
 # alan3 — ALAN 3 (Thomas Nilefalk; modern rewrite of Göran Ranby's ALAN system)
