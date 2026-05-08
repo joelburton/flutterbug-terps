@@ -73,23 +73,41 @@ jobs:
         if: runner.os == 'Windows'
         uses: ilammy/msvc-dev-cmd@v1
 
-      - name: Configure
-        shell: bash
-        run: |
-          if [ "${{ runner.os }}" = "Windows" ]; then
-            cmake -B build -S flutterbug-terps -G Ninja \
-              -DCMAKE_C_COMPILER=clang-cl -DCMAKE_CXX_COMPILER=clang-cl
-          else
-            cmake -B build -S flutterbug-terps
-          fi
+      # Windows uses the default shell (pwsh) for cmake/cargo invocations.
+      # `shell: bash` on Windows is git-bash, which puts /usr/bin in front of
+      # MSVC's bin dir — so cargo picks /usr/bin/link.exe (GNU coreutils,
+      # totally unrelated tool) instead of MSVC's link.exe and Rust crates
+      # fail to link.
+
+      - name: Configure (Unix)
+        if: runner.os != 'Windows'
+        run: cmake -B build -S flutterbug-terps
+
+      - name: Configure (Windows)
+        if: runner.os == 'Windows'
+        run: cmake -B build -S flutterbug-terps -G Ninja -DCMAKE_C_COMPILER=clang-cl -DCMAKE_CXX_COMPILER=clang-cl
 
       - name: Build
-        shell: bash
         run: cmake --build build -j
 
       - name: Smoke test
         shell: bash
         run: flutterbug-terps/tests/smoke.sh -b "$PWD/build" -g "$PWD/games"
+
+      # Diagnostic: smoke.sh swallows stderr. On macOS arm64 every terp is
+      # currently failing; capture one terp's raw output so we can see what's
+      # going wrong.
+      - name: Diagnose smoke failure
+        if: failure() && runner.os == 'macOS'
+        shell: bash
+        run: |
+          set +e
+          echo "=== bocfel raw output ==="
+          INIT='{"type":"init","gen":0,"metrics":{"width":80,"height":24},"support":["timer","graphics","graphicswin","hyperlinks","sounds","sounds2"]}'
+          { printf '%s\n' "$INIT"; sleep 2; } | timeout 5 build/bocfel games/zmachine/Advent.z5
+          echo "=== exit=$? ==="
+          file build/bocfel
+          uname -a
 
       - name: Package
         if: startsWith(github.ref, 'refs/tags/')
