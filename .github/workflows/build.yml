@@ -53,6 +53,7 @@ jobs:
         uses: actions/checkout@v4
         with:
           repository: joelburton/flutterbug-terps-games
+          token: ${{ secrets.GAMES_TOKEN }}
           path: games
 
       - name: Install Rust
