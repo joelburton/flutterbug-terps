@@ -108,7 +108,7 @@ jobs:
         shell: bash
         run: |
           mkdir -p dist
-          TERPS="bocfel glulxe git tads scott plus taylor magnetic level9 agility jacl alan2 scare alan3 advsys hugo"
+          TERPS="bocfel glulxe git tadsr scott plus taylor magnetic level9 agility jacl alan2 scare alan3 advsys hugo"
           mkdir staging
           for t in $TERPS; do
             if [ "${{ runner.os }}" = "Windows" ]; then
