@@ -7,6 +7,9 @@ on:
   pull_request:
     branches: [main]
 
+permissions:
+  contents: write   # softprops/action-gh-release needs this to create the release
+
 jobs:
   build:
     strategy:
