@@ -34,9 +34,7 @@ if exist "%PARENT_DIR%\garglk" (
 if exist "%PARENT_DIR%\remglk-rs" (
     echo   remglk-rs already exists, skipping
 ) else (
-    git clone https://github.com/joelburton/remglk-rs "%PARENT_DIR%\remglk-rs"
-    if errorlevel 1 goto :fail
-    git -C "%PARENT_DIR%\remglk-rs" checkout fix-aarch64-c-char
+    git clone https://github.com/curiousdannii/remglk-rs "%PARENT_DIR%\remglk-rs"
     if errorlevel 1 goto :fail
 )
 

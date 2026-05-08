@@ -43,13 +43,10 @@ jobs:
           repository: garglk/garglk
           path: garglk
 
-      # TODO: drop the `ref:` once curiousdannii/remglk-rs#13 (c_char fix) lands
-      # and switch back to upstream curiousdannii/remglk-rs.
       - name: Checkout remglk-rs
         uses: actions/checkout@v4
         with:
-          repository: joelburton/remglk-rs
-          ref: fix-aarch64-c-char
+          repository: curiousdannii/remglk-rs
           path: remglk-rs
 
       - name: Checkout games
