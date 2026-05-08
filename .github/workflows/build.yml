@@ -73,6 +73,15 @@ jobs:
         if: runner.os == 'Windows'
         uses: ilammy/msvc-dev-cmd@v1
 
+      # macOS lacks GNU `timeout`, which smoke.sh uses as a safety wrapper
+      # around each terp. brew's coreutils provides unprefixed GNU tools
+      # under libexec/gnubin.
+      - name: Install GNU coreutils (macOS)
+        if: runner.os == 'macOS'
+        run: |
+          brew install coreutils
+          echo "/opt/homebrew/opt/coreutils/libexec/gnubin" >> $GITHUB_PATH
+
       # Windows uses the default shell (pwsh) for cmake/cargo invocations.
       # `shell: bash` on Windows is git-bash, which puts /usr/bin in front of
       # MSVC's bin dir — so cargo picks /usr/bin/link.exe (GNU coreutils,
