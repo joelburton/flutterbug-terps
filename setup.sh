@@ -23,7 +23,7 @@ clone_or_skip() {
 echo "=== Cloning sibling repos into $PARENT_DIR ==="
 clone_or_skip garglk   https://github.com/garglk/garglk
 clone_or_skip remglk-rs https://github.com/joelburton/remglk-rs \
-    fix-window-set-arrangement-reentrant-lock
+    fix-aarch64-c-char
 clone_or_skip games    https://github.com/joelburton/flutterbug-terps-games
 
 echo

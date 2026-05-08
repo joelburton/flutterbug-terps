@@ -36,7 +36,7 @@ if exist "%PARENT_DIR%\remglk-rs" (
 ) else (
     git clone https://github.com/joelburton/remglk-rs "%PARENT_DIR%\remglk-rs"
     if errorlevel 1 goto :fail
-    git -C "%PARENT_DIR%\remglk-rs" checkout fix-window-set-arrangement-reentrant-lock
+    git -C "%PARENT_DIR%\remglk-rs" checkout fix-aarch64-c-char
     if errorlevel 1 goto :fail
 )
 
